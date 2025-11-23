@@ -26,8 +26,8 @@ const ChatPage = ({ persona, messages, onSend, onClear, onRegenerate, isLoading,
   };
 
   return (
-    <section className="mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-14 pt-6 md:px-6 lg:flex-row">
-      <div className="flex min-h-[70vh] w-full flex-col rounded-2xl bg-surface/70 p-4 shadow-panel backdrop-blur-xl md:p-6">
+    <section className="mx-auto flex max-w-7xl flex-col gap-4 px-3 pb-20 pt-4 md:gap-6 md:px-6 lg:flex-row">
+      <div className="flex min-h-[70vh] w-full flex-col rounded-2xl bg-surface/70 p-4 shadow-panel backdrop-blur-xl md:min-h-[76vh] md:p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             <button
