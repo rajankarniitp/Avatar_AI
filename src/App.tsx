@@ -82,43 +82,6 @@ const App = () => {
     setMessagesByPersona((prev) => ({ ...prev, [selectedPersona.id]: [] }));
   };
 
-  const handleRegenerate = async () => {
-    if (!selectedPersona) return;
-    const personaId = selectedPersona.id;
-    const personaHistory = messagesByPersona[personaId] ?? [];
-    const lastUser = [...personaHistory].reverse().find((m) => m.from === 'user')?.content;
-    const regeneratePrompt =
-      lastUser ?? 'Revisit the previous topic and offer a fresh, concise perspective as a mentor.';
-    setIsLoading(true);
-    try {
-      const aiContent = await generatePersonaReply(selectedPersona, personaHistory, regeneratePrompt);
-      const aiMessage: Message = {
-        id: `ai-${Date.now()}`,
-        from: 'ai',
-        content: aiContent,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessagesByPersona((prev) => ({
-        ...prev,
-        [personaId]: [...(prev[personaId] ?? []), aiMessage]
-      }));
-    } catch (error) {
-      const fallback: Message = {
-        id: `ai-${Date.now()}`,
-        from: 'ai',
-        content: 'Unable to regenerate right now. Check OpenAI connectivity and retry.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessagesByPersona((prev) => ({
-        ...prev,
-        [personaId]: [...(prev[personaId] ?? []), fallback]
-      }));
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const navigate = (path: string) => {
     if (path === 'about' || path === 'safety') {
       setView('about');
@@ -139,7 +102,6 @@ const App = () => {
           messages={currentMessages}
           onSend={handleSend}
           onClear={handleClear}
-          onRegenerate={handleRegenerate}
           isLoading={isLoading}
           onBack={() => setView('home')}
         />

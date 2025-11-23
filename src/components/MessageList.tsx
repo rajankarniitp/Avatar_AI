@@ -9,7 +9,7 @@ type MessageListProps = {
 
 const MessageList = ({ messages }: MessageListProps) => {
   return (
-    <div className="flex-1 space-y-6 overflow-y-auto pr-2">
+    <div className="flex-1 space-y-6 overflow-y-auto pr-2 pb-4">
       <AnimatePresence initial={false}>
         {messages.map((message) => (
           <motion.div
