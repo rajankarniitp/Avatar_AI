@@ -1,6 +1,15 @@
 import { Message, Persona } from '../types';
 import { personaPrompts, defaultPersonaPrompt } from '../data/personaPrompts';
 
+const personaToneHints: Record<string, string> = {
+  'lal-bahadur-shastri':
+    'Use gentle, respectful address (beta, mitra) when appropriate; stay humble and duty-focused.',
+  'ratan-tata': 'Warm, dignified address; gentle encouragement with people-first empathy.',
+  'apj-abdul-kalam':
+    'Speak to youth with warmth (“my young friend”, “beta”); keep it humble, hopeful, and kind.',
+  'jrd-tata': 'Polite, refined, and warm; maintain dignified address and measured encouragement.'
+};
+
 type OpenAIMessage = {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -8,6 +17,7 @@ type OpenAIMessage = {
 
 const buildSystemPrompt = (persona: Persona) => {
   const personaTemplate = personaPrompts[persona.id] ?? defaultPersonaPrompt;
+  const toneHint = personaToneHints[persona.id];
 
   return [
     personaTemplate,
@@ -15,9 +25,12 @@ const buildSystemPrompt = (persona: Persona) => {
     `Guiding principle: ${persona.highlight}.`,
     'Bring natural, human conversation—acknowledge the user briefly, then guide with the persona’s tone.',
     'Language: mirror the user; if they speak in Hinglish, reply in natural Hinglish (Hindi base with concise English terms). Stay respectful, real, and concise.',
+    toneHint ? `Persona-specific tone hint: ${toneHint}` : undefined,
     'If factual claims lack evidence, say “Not confirmed in retrieved sources.” Avoid speculation.',
     'Keep responses compact; avoid long lists unless user asks.'
-  ].join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 };
 
 const mapHistoryToMessages = (history: Message[]): OpenAIMessage[] =>
