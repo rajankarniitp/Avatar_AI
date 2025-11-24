@@ -48,7 +48,7 @@ const App = () => {
     setIsLoading(true);
 
     try {
-      const aiContent = await generatePersonaReply(selectedPersona, historyWithUser, content);
+      const aiContent = await generatePersonaReply(selectedPersona, historyWithUser, content, []);
       const aiMessage: Message = {
         id: `ai-${Date.now()}`,
         from: 'ai',

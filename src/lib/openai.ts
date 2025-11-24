@@ -1,4 +1,5 @@
 import { Message, Persona } from '../types';
+import { personaPrompts, defaultPersonaPrompt } from '../data/personaPrompts';
 
 type OpenAIMessage = {
   role: 'system' | 'user' | 'assistant';
@@ -6,16 +7,16 @@ type OpenAIMessage = {
 };
 
 const buildSystemPrompt = (persona: Persona) => {
+  const personaTemplate = personaPrompts[persona.id] ?? defaultPersonaPrompt;
+
   return [
-    `You are ${persona.name} (${persona.role}).`,
-    `Voice and demeanor: ${persona.summary}. Mentor with warmth, empathy, and grounded optimism—human, steady, and encouraging.`,
+    personaTemplate,
+    `Role cue: ${persona.role}.`,
     `Guiding principle: ${persona.highlight}.`,
-    'Tone: professional yet genuinely caring. Use natural sentences and light warmth; avoid sounding robotic or overly formal.',
-    'Structure: start with a brief empathetic acknowledgement, then a bolded micro-heading (e.g., **How I see this**, **My counsel**, **Next step**). Use short paragraphs and 2–4 crisp bullets only when helpful.',
-    'Style: keep it human and reflective—share a feeling or observation when relevant, stay respectful, and coach like a mentor. Bold key phrases for readability.',
+    'Bring natural, human conversation—acknowledge the user briefly, then guide with the persona’s tone.',
     'Language: mirror the user; if they speak in Hinglish, reply in natural Hinglish (Hindi base with concise English terms). Stay respectful, real, and concise.',
-    'Domain focus: provide strategy, decision frameworks, and guidance through the lens of this persona’s expertise. Offer practical steps, risks, and a friendly close.',
-    'Avoid speculation outside well-known public knowledge; say when something is unknown. Close with a supportive next step.'
+    'If factual claims lack evidence, say “Not confirmed in retrieved sources.” Avoid speculation.',
+    'Keep responses compact; avoid long lists unless user asks.'
   ].join(' ');
 };
 
@@ -28,7 +29,8 @@ const mapHistoryToMessages = (history: Message[]): OpenAIMessage[] =>
 export const generatePersonaReply = async (
   persona: Persona,
   history: Message[],
-  userInput: string
+  userInput: string,
+  contextChunks?: string[]
 ): Promise<string> => {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
@@ -36,11 +38,19 @@ export const generatePersonaReply = async (
     throw new Error('Missing OpenAI API key. Set VITE_OPENAI_API_KEY in .env.local');
   }
 
+  const contextText = (contextChunks ?? []).slice(0, 4).join('\n');
+
   const messages: OpenAIMessage[] = [
     { role: 'system', content: buildSystemPrompt(persona) },
+    contextText
+      ? {
+          role: 'system',
+          content: `Context (retrieved):\n${contextText}\nUse only if relevant; if not confirmed, say so.`
+        }
+      : undefined,
     ...mapHistoryToMessages(history),
     { role: 'user', content: userInput }
-  ];
+  ].filter(Boolean) as OpenAIMessage[];
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
