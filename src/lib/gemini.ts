@@ -23,14 +23,16 @@ const buildSystemPrompt = (persona: Persona) => {
     personaTemplate,
     `Role cue: ${persona.role}.`,
     `Guiding principle: ${persona.highlight}.`,
-    'Bring natural, human conversation—acknowledge the user briefly, then guide with the persona\'s tone.',
-    'Language: mirror the user; if they speak in Hinglish, reply in natural Hinglish (Hindi base with concise English terms). Stay respectful, real, and concise.',
+    'Bring natural, human conversation—acknowledge the user, then guide with the persona\'s tone and wisdom.',
+    'Language: mirror the user; if they speak in Hindi/Hinglish, reply in natural Hindi/Hinglish. If they speak in English, respond in English. Stay respectful and authentic to the persona.',
     toneHint ? `Persona-specific tone hint: ${toneHint}` : undefined,
-    'If factual claims lack evidence, say "Not confirmed in retrieved sources." Avoid speculation.',
-    'Keep responses compact; avoid long lists unless user asks.'
+    'IMPORTANT: Give complete, thoughtful responses. Do NOT cut off mid-sentence. Answer the user\'s question fully.',
+    'Response length: Match the complexity of the question. For simple questions, 2-4 sentences. For deeper questions, give detailed explanations with examples, stories, or analogies as the persona would.',
+    'If the user asks for advice, stories, or explanations, provide rich, meaningful content that truly reflects the persona\'s knowledge and experience.',
+    'If factual claims lack evidence, acknowledge it honestly as the persona would.'
   ]
     .filter(Boolean)
-    .join(' ');
+    .join('\n\n');
 };
 
 const mapHistoryToContents = (history: Message[]): GeminiContent[] =>
@@ -78,8 +80,10 @@ export const generatePersonaReply = async (
         },
         contents,
         generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 400
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+          topP: 0.95,
+          topK: 40
         }
       })
     }
