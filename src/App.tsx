@@ -7,7 +7,7 @@ import ChatPage from './pages/ChatPage';
 import AboutPage from './pages/AboutPage';
 import { personas } from './data/personas';
 import { Message, Persona } from './types';
-import { generatePersonaReply } from './lib/openai';
+import { generatePersonaReply } from './lib/gemini';
 
 type View = 'home' | 'chat' | 'about';
 
@@ -64,7 +64,7 @@ const App = () => {
         id: `ai-${Date.now()}`,
         from: 'ai',
         content:
-          'I could not reach the model right now. Verify your OpenAI key and network, then try again.',
+          'I could not reach the model right now. Verify your Gemini API key and network, then try again.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessagesByPersona((prev) => ({
